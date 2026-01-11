@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Калькулятор</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 520px; margin: 0 auto; }
+    h2 { margin: 0 0 12px; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+    input { padding: 10px; font-size: 16px; }
+    button { padding: 10px; font-size: 16px; cursor: pointer; }
+    .pad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .pad button { padding: 14px 0; font-size: 18px; }
+    .hint { color: #555; font-size: 14px; margin-top: 6px; }
+    .activeTarget { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Калькулятор</h2>
+
+  <div class="row">
+    <input id="num1" type="text" inputmode="decimal" placeholder="Перше число" />
+    <input id="num2" type="text" inputmode="decimal" placeholder="Друге число" />
+    <input id="op" type="text" placeholder="Операція (+, -, *, /)" maxlength="1" />
+    <button id="calcBtn">Розрахувати</button>
+
+    <div class="hint">
+      Активне поле для введення з клавіатури: <span id="targetName" class="activeTarget">Перше число</span><br/>
+      (Клацни в потрібне поле, потім тисни кнопки калькулятора нижче)
+    </div>
+  </div>
+
+  <h3>Клавіатура</h3>
+  <div class="pad" id="pad"></div>
+
+  <script>
+    // Глобальний об'єкт для збереження даних
+    const globalData = {
+      num1: "",
+      num2: "",
+      op: ""
+    };
+
+    const num1El = document.getElementById("num1");
+    const num2El = document.getElementById("num2");
+    const opEl   = document.getElementById("op");
+    const calcBtn = document.getElementById("calcBtn");
+    const padEl = document.getElementById("pad");
+    const targetNameEl = document.getElementById("targetName");
+
+    // Яке поле зараз "ціль" для кнопок клавіатури
+    let activeField = num1El;
+
+    function setActiveField(el) {
+      activeField = el;
+      targetNameEl.textContent =
+        el === num1El ? "Перше число" :
+        el === num2El ? "Друге число" : "Операція";
+    }
+
+    // Зберігаємо значення в глобальний об'єкт при втраті фокусу (blur)
+    function syncToGlobal() {
+      globalData.num1 = num1El.value.trim();
+      globalData.num2 = num2El.value.trim();
+      globalData.op = opEl.value.trim();
+    }
+
+    num1El.addEventListener("blur", syncToGlobal);
+    num2El.addEventListener("blur", syncToGlobal);
+    opEl.addEventListener("blur", syncToGlobal);
+
+    // При фокусі — обираємо активне поле для калькуляторної клавіатури
+    num1El.addEventListener("focus", () => setActiveField(num1El));
+    num2El.addEventListener("focus", () => setActiveField(num2El));
+    opEl.addEventListener("focus", () => setActiveField(opEl));
+
+    // Допоміжна: перевірка числа (дозволяємо і , і .)
+    function parseNumber(str) {
+      const s = str.replace(",", ".");
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function calculate() {
+      // На випадок, якщо користувач не "вийшов" з поля (не було blur)
+      syncToGlobal();
+
+      if (!globalData.num1) {
+        alert("Введіть перше число.");
+        return;
+      }
+      if (!globalData.num2) {
+        alert("Введіть друге число.");
+        return;
+      }
+      if (!globalData.op) {
+        alert("Введіть операцію (+, -, *, /).");
+        return;
+      }
+
+      const a = parseNumber(globalData.num1);
+      const b = parseNumber(globalData.num2);
+      if (a === null) {
+        alert("Перше число введено некоректно.");
+        return;
+      }
+      if (b === null) {
+        alert("Друге число введено некоректно.");
+        return;
+      }
+
+      const op = globalData.op;
+      let res;
+
+      if (op === "+") res = a + b;
+      else if (op === "-") res = a - b;
+      else if (op === "*") res = a * b;
+      else if (op === "/") {
+        if (b === 0) {
+          alert("Ділення на нуль неможливе.");
+          return;
+        }
+        res = a / b;
+      } else {
+        alert("Невідома операція. Дозволено: +, -, *, /");
+        return;
+      }
+
+      alert(`Результат: ${res}`);
+    }
+
+    calcBtn.addEventListener("click", calculate);
+
+    // ---- Клавіатура калькулятора ----
+    // Розкладка: 7 8 9 / | 4 5 6 * | 1 2 3 - | 0 . C + | = (на всю ширину)
+    const buttons = [
+      "7","8","9","/",
+      "4","5","6","*",
+      "1","2","3","-",
+      "0",".","C","+"
+    ];
+
+    function appendToActive(value) {
+      // Якщо активне поле — операція, то дозволяємо лише оператори
+      if (activeField === opEl) {
+        if (["+","-","*","/"].includes(value)) {
+          opEl.value = value;
+        }
+        return;
+      }
+
+      // Якщо активне поле — числа: цифри і крапка
+      if (value === ".") {
+        if (!activeField.value.includes(".") && !activeField.value.includes(",")) {
+          activeField.value += ".";
+        }
+        return;
+      }
+
+      if (/^\d$/.test(value)) {
+        activeField.value += value;
+      }
+    }
+
+    function clearActive() {
+      activeField.value = "";
+      // не забуваємо оновити глобальний об'єкт при очищенні (без blur)
+      syncToGlobal();
+    }
+
+    // Створюємо кнопки
+    buttons.forEach(txt => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = txt;
+
+      b.addEventListener("click", () => {
+        if (txt === "C") {
+          clearActive();
+          return;
+        }
+        if (["+","-","*","/"].includes(txt)) {
+          opEl.value = txt;
+          setActiveField(opEl);
+          syncToGlobal();
+          return;
+        }
+        appendToActive(txt);
+        syncToGlobal();
+      });
+
+      padEl.appendChild(b);
+    });
+
+    // Кнопка "=" окремо (на всю ширину)
+    const eq = document.createElement("button");
+    eq.type = "button";
+    eq.textContent = "=";
+    eq.style.gridColumn = "1 / -1";
+    eq.addEventListener("click", calculate);
+    padEl.appendChild(eq);
+
+    // За замовчуванням активне поле — перше число
+    setActiveField(num1El);
+  </script>
+</body>
+</html>
