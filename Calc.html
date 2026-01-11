@@ -70,7 +70,7 @@
     num2El.addEventListener("blur", syncToGlobal);
     opEl.addEventListener("blur", syncToGlobal);
 
-    // При фокусі — обираємо активне поле для калькуляторної клавіатури
+    // При фокусі - обираємо активне поле для калькуляторної клавіатури
     num1El.addEventListener("focus", () => setActiveField(num1El));
     num2El.addEventListener("focus", () => setActiveField(num2El));
     opEl.addEventListener("focus", () => setActiveField(opEl));
@@ -133,7 +133,7 @@
     calcBtn.addEventListener("click", calculate);
 
     // ---- Клавіатура калькулятора ----
-    // Розкладка: 7 8 9 / | 4 5 6 * | 1 2 3 - | 0 . C + | = (на всю ширину)
+    // Розкладка
     const buttons = [
       "7","8","9","/",
       "4","5","6","*",
@@ -142,7 +142,7 @@
     ];
 
     function appendToActive(value) {
-      // Якщо активне поле — операція, то дозволяємо лише оператори
+      // Якщо активне поле - операція, то дозволяємо лише оператори
       if (activeField === opEl) {
         if (["+","-","*","/"].includes(value)) {
           opEl.value = value;
@@ -150,7 +150,7 @@
         return;
       }
 
-      // Якщо активне поле — числа: цифри і крапка
+      // Якщо активне поле - числа: цифри і крапка
       if (value === ".") {
         if (!activeField.value.includes(".") && !activeField.value.includes(",")) {
           activeField.value += ".";
@@ -165,7 +165,7 @@
 
     function clearActive() {
       activeField.value = "";
-      // не забуваємо оновити глобальний об'єкт при очищенні (без blur)
+      // оновити глобальний об'єкт при очищенні
       syncToGlobal();
     }
 
@@ -201,8 +201,9 @@
     eq.addEventListener("click", calculate);
     padEl.appendChild(eq);
 
-    // За замовчуванням активне поле — перше число
+    // За замовчуванням активне поле - перше число
     setActiveField(num1El);
   </script>
 </body>
+
 </html>
