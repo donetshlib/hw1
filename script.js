@@ -1,4 +1,3 @@
-// 1) Глобальний об'єкт БЕЗ наперед заданих полів/значень
 const globalData = {};
 
 const num1El = document.getElementById("num1");
@@ -23,7 +22,7 @@ function saveFieldToGlobal(fieldName, value) {
   else globalData[fieldName] = v;
 }
 
-// 2) Збереження при втраті фокусу (blur)
+
 num1El.addEventListener("blur", () => saveFieldToGlobal("num1", num1El.value));
 num2El.addEventListener("blur", () => saveFieldToGlobal("num2", num2El.value));
 opEl.addEventListener("blur",   () => saveFieldToGlobal("op", opEl.value));
@@ -39,7 +38,7 @@ function parseNumber(str) {
 }
 
 function calculate() {
-  // якщо blur ще не стався — збережемо вручну
+
   saveFieldToGlobal("num1", num1El.value);
   saveFieldToGlobal("num2", num2El.value);
   saveFieldToGlobal("op", opEl.value);
