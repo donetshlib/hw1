@@ -1,0 +1,8 @@
+body { font-family: Arial, sans-serif; padding: 20px; max-width: 520px; margin: 0 auto; }
+.inputs { display: grid; gap: 10px; margin-bottom: 14px; }
+input { padding: 10px; font-size: 16px; }
+button { padding: 10px; font-size: 16px; cursor: pointer; }
+.pad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pad button { padding: 14px 0; font-size: 18px; }
+.hint { color: #555; font-size: 14px; }
+#targetName { font-weight: bold; }
